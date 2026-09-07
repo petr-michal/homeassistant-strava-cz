@@ -1,106 +1,133 @@
-# Strava.cz for Home Assistant
+# Strava.cz pro Home Assistant
 
-Custom integration for [Home Assistant](https://www.home-assistant.io/) providing
-school canteen data and meal ordering from [Strava.cz](https://app.strava.cz/).
+Custom integrace pro [Home Assistant](https://www.home-assistant.io/), která zpřístupňuje
+data ze školních jídelen používajících [Strava.cz](https://app.strava.cz/).
 
-The integration is built on top of the Python library
+Integrace je postavená nad Python knihovnou
 [`jsem-nerad/strava-cz-python`](https://github.com/jsem-nerad/strava-cz-python),
-which provides the Strava.cz API client, menu parsing and ordering logic.
+která zajišťuje komunikaci se Strava.cz API, načítání jídelníčku a objednávání jídel.
 
-> This repository is the Home Assistant integration layer. It is not affiliated
-> with Strava.cz or the upstream `strava-cz-python` project.
+> Tento repozitář obsahuje Home Assistant integrační vrstvu. Není oficiálně spojen
+> se Strava.cz ani s upstream projektem `strava-cz-python`.
 
-## Status
+## Stav
 
-The integration is running successfully on Home Assistant 2026.9.x with a live
-Strava.cz account.
+Integrace je funkční a ověřená na Home Assistant 2026.9.x proti reálnému účtu Strava.cz.
 
-Current integration version: **0.1.4**
+Aktuální verze integrace: **0.1.4**
 
-## Features
+## Funkce
 
-- UI setup through Home Assistant Config Flow
-- multiple Strava.cz accounts, suitable for multiple children
-- account balance
-- today's lunch
-- tomorrow's lunch
-- next ordered lunch
-- order a lunch directly from Home Assistant
-- cancel an ordered lunch directly from Home Assistant
-- meal variants, prices, allergens and deadlines in entity attributes
-- coordinator-based polling
-- persistent session with automatic re-login after session expiration
-- refresh before order changes because Strava.cz meal IDs are not permanent
+- nastavení přes UI pomocí Home Assistant Config Flow
+- podpora více účtů, vhodné například pro více dětí
+- zůstatek na účtu
+- dnešní oběd
+- zítřejší oběd
+- příští objednaný oběd
+- objednání oběda přímo z Home Assistantu
+- zrušení objednaného oběda přímo z Home Assistantu
+- varianty jídel, ceny, alergeny a termíny objednávek v atributech entit
+- pravidelné načítání dat přes DataUpdateCoordinator
+- udržování přihlášené session
+- automatické nové přihlášení po expiraci session
+- obnovení jídelníčku před změnou objednávky, protože ID jídel na Strava.cz nejsou trvalá
 
-## Installation
+## Instalace
 
-### HACS custom repository
+### Přes HACS jako vlastní repozitář
 
-1. Open **HACS**.
-2. Add this repository as a **Custom repository** with category **Integration**.
-3. Install **Strava.cz**.
-4. Restart Home Assistant.
-5. Go to **Settings → Devices & services → Add integration**.
-6. Search for **Strava.cz**.
-7. Enter:
-   - Strava.cz username
-   - password
-   - canteen number
+1. Otevři **HACS**.
+2. Přidej tento repozitář jako **Vlastní repozitář / Custom repository**.
+3. Jako kategorii zvol **Integrace / Integration**.
+4. Nainstaluj **Strava.cz**.
+5. Restartuj Home Assistant.
+6. Otevři **Nastavení → Zařízení a služby → Přidat integraci**.
+7. Vyhledej **Strava.cz**.
+8. Zadej:
+   - uživatelské jméno
+   - heslo
+   - číslo jídelny
 
-Add the integration once for every Strava.cz account.
+Pro každý další účet Strava.cz přidej integraci znovu.
 
-### Manual installation
+### Ruční instalace
 
-Copy:
+Zkopíruj složku:
 
 ```text
 custom_components/strava_cz
 ```
 
-to:
+do:
 
 ```text
 /config/custom_components/strava_cz
 ```
 
-and restart Home Assistant.
+a restartuj Home Assistant.
 
-## Entities
+## Vytvářené entity
 
-Each configured account creates one Home Assistant device with these entities:
+Každý nakonfigurovaný účet vytvoří jedno zařízení Strava.cz a tyto entity:
 
-- **Balance**
-- **Today's lunch**
-- **Tomorrow's lunch**
-- **Next ordered lunch**
-- **Order lunch**
-- **Cancel lunch**
+- **Zůstatek**
+- **Dnešní oběd**
+- **Zítřejší oběd**
+- **Příští objednaný oběd**
+- **Objednat oběd**
+- **Zrušit oběd**
 
-## Important API compatibility note
+Díky tomu je možné mít v jednom Home Assistantu několik samostatných účtů, například
+pro více dětí.
 
-Strava.cz expects the Czech language code **`CZ`** for the login/API requests.
-Using `CS` causes the login endpoint to hang until the HTTP client times out.
+## Objednávání jídel
 
-This behavior was verified against a live Strava.cz account while developing the
-Home Assistant integration.
+Entita **Objednat oběd** nabízí pouze hlavní jídla, která je možné v danou chvíli
+objednat.
 
-## Upstream project
+Entita **Zrušit oběd** nabízí pouze objednaná jídla, která je ještě možné zrušit.
 
-This integration deliberately delegates Strava.cz API behavior to:
+Před změnou objednávky integrace znovu načte aktuální jídelníček, protože identifikátory
+jídel na Strava.cz se mohou změnit.
 
-- https://github.com/jsem-nerad/strava-cz-python
-- PyPI package: `strava-cz`
+## Důležitá poznámka k API
 
-The Home Assistant manifest currently pins:
+Strava.cz očekává pro český jazyk v API hodnotu:
+
+```text
+CZ
+```
+
+Použití hodnoty `CS` způsobuje, že požadavek na přihlášení může zůstat viset až do
+HTTP timeoutu.
+
+Toto chování bylo při vývoji integrace ověřeno proti reálnému účtu Strava.cz.
+
+## Použitá knihovna
+
+Integrace používá:
+
+- [jsem-nerad/strava-cz-python](https://github.com/jsem-nerad/strava-cz-python)
+- PyPI balíček `strava-cz`
+
+V Home Assistant manifestu je aktuálně použita verze:
 
 ```text
 strava-cz==0.4.0
 ```
 
-Thanks to **Vojtěch Nerad / jsem-nerad** for the Strava.cz Python client and API
-research that this integration is based on.
+Velké poděkování patří autorovi **Vojtěchu Neradovi / jsem-nerad** za Python klienta
+a zdokumentování Strava.cz API, ze kterého tato integrace vychází.
 
-## License
+## Kompatibilita
 
-This Home Assistant integration is distributed under the **GPL-3.0-or-later**
-license, matching the upstream `strava-cz-python` project.
+Aktuálně ověřeno na:
+
+- Home Assistant Core **2026.9.x**
+- `strava-cz==0.4.0`
+
+## Licence
+
+Projekt je distribuován pod licencí **GNU GPL v3.0**.
+
+Viz soubor [LICENSE](LICENSE).
