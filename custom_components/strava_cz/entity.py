@@ -14,17 +14,35 @@ class StravaCZEntity(CoordinatorEntity[StravaCZCoordinator]):
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: StravaCZCoordinator) -> None:
+    def __init__(self, coordinator: StravaCZCoordinator, child_key: str) -> None:
         super().__init__(coordinator)
         self._entry = coordinator.entry
+        self.child_key = child_key
+
+    def make_unique_id(self, suffix: str) -> str:
+        """Keep old unique IDs stable for classic accounts."""
+        if self.coordinator.is_legacy_single:
+            return f"{self._entry.entry_id}_{suffix}"
+        return f"{self._entry.entry_id}_{self.child_key}_{suffix}"
+
+    @property
+    def child_data(self) -> dict:
+        """Return current data for this child."""
+        return self.coordinator.child_data(self.child_key)
 
     @property
     def device_info(self) -> DeviceInfo:
-        user = self.coordinator.data.get("user", {})
+        user = self.child_data.get("user", {})
         title = user.get("full_name") or self._entry.title
         canteen_name = user.get("canteen_name")
+
+        if self.coordinator.is_legacy_single:
+            identifier = self._entry.entry_id
+        else:
+            identifier = f"{self._entry.entry_id}:{self.child_key}"
+
         return DeviceInfo(
-            identifiers={(DOMAIN, self._entry.entry_id)},
+            identifiers={(DOMAIN, identifier)},
             name=f"Strava.cz – {title}",
             manufacturer="Strava.cz",
             model=canteen_name or "Školní jídelna",

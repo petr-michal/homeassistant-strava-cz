@@ -3,8 +3,24 @@
   "config": {
     "step": {
       "user": {
-        "title": "Připojit účet Strava.cz",
-        "description": "Zadejte stejné údaje, kterými se přihlašujete na app.strava.cz.",
+        "title": "Připojit Strava.cz",
+        "description": "Vyberte způsob přihlášení. Osobní účet je doporučený, pokud pod jedním e-mailem spravujete více účtů jídelen.",
+        "menu_options": {
+          "personal": "Osobní účet (doporučeno)",
+          "canteen": "Účet jídelny"
+        }
+      },
+      "personal": {
+        "title": "Připojit osobní účet Strava.cz",
+        "description": "Přihlaste se e-mailem osobního účtu. Integrace automaticky načte všechny propojené účty jídelen jako samostatná zařízení.",
+        "data": {
+          "email": "E-mail",
+          "password": "Heslo"
+        }
+      },
+      "canteen": {
+        "title": "Připojit účet jídelny",
+        "description": "Použijte přihlašovací údaje konkrétního účtu jídelny.",
         "data": {
           "username": "Uživatelské jméno",
           "password": "Heslo",
@@ -15,6 +31,7 @@
     "error": {
       "invalid_auth": "Přihlášení bylo odmítnuto. Zkontrolujte údaje.",
       "cannot_connect": "Ke Strava.cz se teď nepodařilo připojit.",
+      "no_accounts": "Osobní účet nemá propojený žádný účet jídelny.",
       "unknown": "Nastala neočekávaná chyba.",
       "timeout": "Strava.cz neodpověděla ani do 60 sekund. Služba je pravděpodobně dočasně pomalá; zkuste to později."
     },

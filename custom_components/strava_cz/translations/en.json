@@ -3,8 +3,24 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect Strava.cz account",
-        "description": "Enter the same credentials you use at app.strava.cz.",
+        "title": "Connect Strava.cz",
+        "description": "Choose how to sign in. A personal account is recommended when one email manages several canteen accounts.",
+        "menu_options": {
+          "personal": "Personal account (recommended)",
+          "canteen": "Canteen account"
+        }
+      },
+      "personal": {
+        "title": "Connect a Strava.cz personal account",
+        "description": "Sign in with the personal-account email. All linked canteen accounts will be added automatically as separate devices.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      },
+      "canteen": {
+        "title": "Connect a canteen account",
+        "description": "Use the credentials of one specific canteen account.",
         "data": {
           "username": "Username",
           "password": "Password",
@@ -15,6 +31,7 @@
     "error": {
       "invalid_auth": "Authentication was rejected. Check your credentials.",
       "cannot_connect": "Could not connect to Strava.cz.",
+      "no_accounts": "The personal account has no linked canteen accounts.",
       "unknown": "An unexpected error occurred.",
       "timeout": "Strava.cz did not respond within 60 seconds. Try again later."
     },

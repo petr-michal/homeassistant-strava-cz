@@ -20,17 +20,28 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: StravaCZCoordinator = entry.runtime_data
-    async_add_entities(
-        [
-            StravaCZBalanceSensor(coordinator),
-            StravaCZDaySensor(coordinator, 0, "Dnešní oběd", "today_lunch"),
-            StravaCZDaySensor(coordinator, 1, "Zítřejší oběd", "tomorrow_lunch"),
-            StravaCZNextOrderedSensor(coordinator),
-        ]
-    )
+    entities: list[SensorEntity] = []
+
+    for child_key in coordinator.child_keys:
+        entities.extend(
+            [
+                StravaCZBalanceSensor(coordinator, child_key),
+                StravaCZDaySensor(
+                    coordinator, child_key, 0, "Dnešní oběd", "today_lunch"
+                ),
+                StravaCZDaySensor(
+                    coordinator, child_key, 1, "Zítřejší oběd", "tomorrow_lunch"
+                ),
+                StravaCZNextOrderedSensor(coordinator, child_key),
+            ]
+        )
+
+    async_add_entities(entities)
 
 
-def _day_for_offset(data: dict[str, Any], offset: int) -> dict[str, Any] | None:
+def _day_for_offset(
+    data: dict[str, Any], offset: int
+) -> dict[str, Any] | None:
     wanted = (dt_util.now().date() + timedelta(days=offset)).isoformat()
     return next((day for day in data.get("days", []) if day["date"] == wanted), None)
 
@@ -47,25 +58,26 @@ class StravaCZBalanceSensor(StravaCZEntity, SensorEntity):
     _attr_name = "Zůstatek"
     _attr_icon = "mdi:cash"
 
-    def __init__(self, coordinator: StravaCZCoordinator) -> None:
-        super().__init__(coordinator)
-        self._attr_unique_id = f"{coordinator.entry.entry_id}_balance"
+    def __init__(self, coordinator: StravaCZCoordinator, child_key: str) -> None:
+        super().__init__(coordinator, child_key)
+        self._attr_unique_id = self.make_unique_id("balance")
 
     @property
     def native_value(self) -> float | None:
-        return self.coordinator.data.get("user", {}).get("balance")
+        return self.child_data.get("user", {}).get("balance")
 
     @property
     def native_unit_of_measurement(self) -> str | None:
-        return self.coordinator.data.get("user", {}).get("currency", "Kč")
+        return self.child_data.get("user", {}).get("currency", "Kč")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        user = self.coordinator.data.get("user", {})
+        user = self.child_data.get("user", {})
         return {
             "jídelna": user.get("canteen_name"),
             "číslo_jídelny": user.get("canteen_number"),
             "uživatel": user.get("full_name"),
+            "účet": user.get("username"),
         }
 
 
@@ -77,18 +89,19 @@ class StravaCZDaySensor(StravaCZEntity, SensorEntity):
     def __init__(
         self,
         coordinator: StravaCZCoordinator,
+        child_key: str,
         offset: int,
         name: str,
         unique_suffix: str,
     ) -> None:
-        super().__init__(coordinator)
+        super().__init__(coordinator, child_key)
         self._offset = offset
         self._attr_name = name
-        self._attr_unique_id = f"{coordinator.entry.entry_id}_{unique_suffix}"
+        self._attr_unique_id = self.make_unique_id(unique_suffix)
 
     @property
     def native_value(self) -> str:
-        day = _day_for_offset(self.coordinator.data, self._offset)
+        day = _day_for_offset(self.child_data, self._offset)
         meals = _main_meals(day)
         ordered = [meal for meal in meals if meal.get("ordered")]
 
@@ -102,7 +115,7 @@ class StravaCZDaySensor(StravaCZEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        day = _day_for_offset(self.coordinator.data, self._offset)
+        day = _day_for_offset(self.child_data, self._offset)
         if not day:
             return {}
 
@@ -140,13 +153,13 @@ class StravaCZNextOrderedSensor(StravaCZEntity, SensorEntity):
     _attr_name = "Příští objednaný oběd"
     _attr_icon = "mdi:calendar-check"
 
-    def __init__(self, coordinator: StravaCZCoordinator) -> None:
-        super().__init__(coordinator)
-        self._attr_unique_id = f"{coordinator.entry.entry_id}_next_ordered"
+    def __init__(self, coordinator: StravaCZCoordinator, child_key: str) -> None:
+        super().__init__(coordinator, child_key)
+        self._attr_unique_id = self.make_unique_id("next_ordered")
 
     def _next(self) -> dict[str, Any] | None:
         today = dt_util.now().date().isoformat()
-        for day in self.coordinator.data.get("days", []):
+        for day in self.child_data.get("days", []):
             if day.get("date", "") < today:
                 continue
             for meal in day.get("meals", []):

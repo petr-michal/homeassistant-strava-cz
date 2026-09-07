@@ -20,12 +20,17 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: StravaCZCoordinator = entry.runtime_data
-    async_add_entities(
-        [
-            StravaCZMealActionSelect(coordinator, order=True),
-            StravaCZMealActionSelect(coordinator, order=False),
-        ]
-    )
+    entities: list[SelectEntity] = []
+
+    for child_key in coordinator.child_keys:
+        entities.extend(
+            [
+                StravaCZMealActionSelect(coordinator, child_key, order=True),
+                StravaCZMealActionSelect(coordinator, child_key, order=False),
+            ]
+        )
+
+    async_add_entities(entities)
 
 
 def _option_label(meal: dict[str, Any]) -> str:
@@ -41,18 +46,24 @@ class StravaCZMealActionSelect(StravaCZEntity, SelectEntity):
 
     _attr_icon = "mdi:food-variant"
 
-    def __init__(self, coordinator: StravaCZCoordinator, *, order: bool) -> None:
-        super().__init__(coordinator)
+    def __init__(
+        self,
+        coordinator: StravaCZCoordinator,
+        child_key: str,
+        *,
+        order: bool,
+    ) -> None:
+        super().__init__(coordinator, child_key)
         self._order = order
         self._attr_name = "Objednat oběd" if order else "Zrušit oběd"
         suffix = "order_lunch" if order else "cancel_lunch"
-        self._attr_unique_id = f"{coordinator.entry.entry_id}_{suffix}"
+        self._attr_unique_id = self.make_unique_id(suffix)
 
     def _meal_map(self) -> dict[str, int]:
         today = dt_util.now().date().isoformat()
         result: dict[str, int] = {}
 
-        for day in self.coordinator.data.get("days", []):
+        for day in self.child_data.get("days", []):
             if day.get("date", "") < today:
                 continue
             for meal in day.get("meals", []):
@@ -60,9 +71,13 @@ class StravaCZMealActionSelect(StravaCZEntity, SelectEntity):
                     continue
 
                 if self._order:
-                    eligible = bool(meal.get("can_order")) and not bool(meal.get("ordered"))
+                    eligible = bool(meal.get("can_order")) and not bool(
+                        meal.get("ordered")
+                    )
                 else:
-                    eligible = bool(meal.get("ordered")) and bool(meal.get("can_cancel"))
+                    eligible = bool(meal.get("ordered")) and bool(
+                        meal.get("can_cancel")
+                    )
 
                 if eligible:
                     result[_option_label(meal)] = int(meal["id"])
@@ -82,4 +97,8 @@ class StravaCZMealActionSelect(StravaCZEntity, SelectEntity):
             raise HomeAssistantError(
                 "Vybrané jídlo už není dostupné. Obnov data integrace a zkus to znovu."
             )
-        await self.coordinator.async_change_meal(meal_id, ordered=self._order)
+        await self.coordinator.async_change_meal(
+            self.child_key,
+            meal_id,
+            ordered=self._order,
+        )
