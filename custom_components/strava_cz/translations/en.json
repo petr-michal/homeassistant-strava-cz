@@ -1,0 +1,25 @@
+{
+  "title": "Strava.cz",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Strava.cz account",
+        "description": "Enter the same credentials you use at app.strava.cz.",
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "canteen_number": "Canteen number"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Authentication was rejected. Check your credentials.",
+      "cannot_connect": "Could not connect to Strava.cz.",
+      "unknown": "An unexpected error occurred.",
+      "timeout": "Strava.cz did not respond within 60 seconds. Try again later."
+    },
+    "abort": {
+      "already_configured": "This Strava.cz account is already configured."
+    }
+  }
+}
