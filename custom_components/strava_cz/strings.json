@@ -1,0 +1,25 @@
+{
+  "title": "Strava.cz",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Připojit účet Strava.cz",
+        "description": "Zadejte stejné údaje, kterými se přihlašujete na app.strava.cz.",
+        "data": {
+          "username": "Uživatelské jméno",
+          "password": "Heslo",
+          "canteen_number": "Číslo jídelny"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Přihlášení bylo odmítnuto. Zkontrolujte údaje.",
+      "cannot_connect": "Ke Strava.cz se teď nepodařilo připojit.",
+      "unknown": "Nastala neočekávaná chyba.",
+      "timeout": "Strava.cz neodpověděla ani do 60 sekund. Služba je pravděpodobně dočasně pomalá; zkuste to později."
+    },
+    "abort": {
+      "already_configured": "Tento účet Strava.cz už je nastaven."
+    }
+  }
+}
