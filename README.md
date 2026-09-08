@@ -6,9 +6,9 @@ používajících Strava.cz.
 Integrace vychází z knihovny:
 https://github.com/jsem-nerad/strava-cz-python
 
-## Verze 0.2.1
+## Verze 0.2.2
 
-Verze 0.2.1 opravuje popisky výběru přihlášení v Home Assistantu a u zařízení zobrazuje i číslo jídelny.\n\nIntegrace podporuje dva způsoby přihlášení:
+Verze 0.2.2 přidává týdenní jídelníček pro celý pracovní týden. Zachovává také opravené popisky výběru přihlášení a číslo jídelny u zařízení.\n\nIntegrace podporuje dva způsoby přihlášení:
 
 ### Osobní účet – doporučeno
 
@@ -51,7 +51,7 @@ zůstává zachováno kvůli zpětné kompatibilitě.
 - Zítřejší oběd
 - Příští objednaný oběd
 - Objednat oběd
-- Zrušit oběd
+- Zrušit oběd\n- Týdenní jídelníček (pondělí–pátek, všechny varianty a stav objednávky)
 
 ## Důležitá poznámka
 
