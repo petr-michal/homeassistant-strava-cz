@@ -77,3 +77,12 @@ https://github.com/petr-michal/homeassistant-strava-cz
 ## Licence
 
 GNU GPL v3.0. Integrace používá `strava-cz==0.4.0`.
+
+
+## Logo
+
+Integrace používá oficiální logomark Strava.cz z:
+https://app.strava.cz/logo/logomark.svg
+
+Od Home Assistantu 2026.3 jsou brand obrázky custom integrací načítány přímo
+z adresáře `custom_components/strava_cz/brand/`.
