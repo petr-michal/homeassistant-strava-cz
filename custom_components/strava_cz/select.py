@@ -13,6 +13,8 @@ from homeassistant.util import dt as dt_util
 from .coordinator import StravaCZCoordinator
 from .entity import StravaCZEntity
 
+PLACEHOLDER_OPTION = "— Vyberte oběd —"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -85,13 +87,16 @@ class StravaCZMealActionSelect(StravaCZEntity, SelectEntity):
 
     @property
     def options(self) -> list[str]:
-        return list(self._meal_map().keys())
+        return [PLACEHOLDER_OPTION, *self._meal_map().keys()]
 
     @property
-    def current_option(self) -> str | None:
-        return None
+    def current_option(self) -> str:
+        return PLACEHOLDER_OPTION
 
     async def async_select_option(self, option: str) -> None:
+        if option == PLACEHOLDER_OPTION:
+            return
+
         meal_id = self._meal_map().get(option)
         if meal_id is None:
             raise HomeAssistantError(
