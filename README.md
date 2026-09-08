@@ -6,9 +6,9 @@ používajících Strava.cz.
 Integrace vychází z knihovny:
 https://github.com/jsem-nerad/strava-cz-python
 
-## Verze 0.2.0
+## Verze 0.2.1
 
-Nově podporuje dva způsoby přihlášení:
+Verze 0.2.1 opravuje popisky výběru přihlášení v Home Assistantu a u zařízení zobrazuje i číslo jídelny.\n\nIntegrace podporuje dva způsoby přihlášení:
 
 ### Osobní účet – doporučeno
 
