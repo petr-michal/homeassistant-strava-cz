@@ -33,6 +33,7 @@ async def async_setup_entry(
                     coordinator, child_key, 1, "Zítřejší oběd", "tomorrow_lunch"
                 ),
                 StravaCZNextOrderedSensor(coordinator, child_key),
+                StravaCZWeekMenuSensor(coordinator, child_key),
             ]
         )
 
@@ -144,6 +145,82 @@ class StravaCZDaySensor(StravaCZEntity, SensorEntity):
                 }
                 for meal in meals
             ],
+        }
+
+
+class StravaCZWeekMenuSensor(StravaCZEntity, SensorEntity):
+    """Current school-week menu with all meal variants."""
+
+    _attr_name = "Týdenní jídelníček"
+    _attr_icon = "mdi:calendar-week"
+
+    def __init__(self, coordinator: StravaCZCoordinator, child_key: str) -> None:
+        super().__init__(coordinator, child_key)
+        self._attr_unique_id = self.make_unique_id("week_menu")
+
+    @staticmethod
+    def _bounds():
+        today = dt_util.now().date()
+        if today.weekday() >= 5:
+            start = today + timedelta(days=7 - today.weekday())
+        else:
+            start = today - timedelta(days=today.weekday())
+        return start, start + timedelta(days=4)
+
+    def _week_days(self) -> list[dict[str, Any]]:
+        start, end = self._bounds()
+        start_iso = start.isoformat()
+        end_iso = end.isoformat()
+        return [
+            day
+            for day in self.child_data.get("days", [])
+            if start_iso <= day.get("date", "") <= end_iso
+        ]
+
+    @property
+    def native_value(self) -> str:
+        start, end = self._bounds()
+        return f"{start:%d.%m.}–{end:%d.%m.}"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        start, end = self._bounds()
+        days: list[dict[str, Any]] = []
+
+        for day in self._week_days():
+            meals = []
+            for meal in day.get("meals", []):
+                meals.append(
+                    {
+                        "id": meal.get("id"),
+                        "typ": meal.get("type"),
+                        "varianta": meal.get("variant"),
+                        "název": meal.get("name"),
+                        "cena": meal.get("price"),
+                        "objednáno": meal.get("ordered"),
+                        "lze_objednat": meal.get("can_order"),
+                        "lze_zrušit": meal.get("can_cancel"),
+                        "alergeny": [
+                            allergen.get("code")
+                            for allergen in meal.get("allergens", [])
+                        ],
+                        "uzávěrka": meal.get("deadline"),
+                    }
+                )
+
+            days.append(
+                {
+                    "datum": day.get("date"),
+                    "stav": day.get("status_description"),
+                    "nevaří_se": day.get("no_school"),
+                    "jídla": meals,
+                }
+            )
+
+        return {
+            "od": start.isoformat(),
+            "do": end.isoformat(),
+            "dny": days,
         }
 
 
