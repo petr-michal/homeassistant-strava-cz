@@ -35,6 +35,7 @@ class StravaCZEntity(CoordinatorEntity[StravaCZCoordinator]):
         user = self.child_data.get("user", {})
         title = user.get("full_name") or self._entry.title
         canteen_name = user.get("canteen_name")
+        canteen_number = user.get("canteen_number")
 
         if self.coordinator.is_legacy_single:
             identifier = self._entry.entry_id
@@ -45,6 +46,11 @@ class StravaCZEntity(CoordinatorEntity[StravaCZCoordinator]):
             identifiers={(DOMAIN, identifier)},
             name=f"Strava.cz – {title}",
             manufacturer="Strava.cz",
-            model=canteen_name or "Školní jídelna",
+            model=(
+                f"Jídelna {canteen_number} • {canteen_name}"
+                if canteen_number and canteen_name
+                else (f"Jídelna {canteen_number}" if canteen_number else canteen_name)
+                or "Školní jídelna"
+            ),
             configuration_url="https://app.strava.cz",
         )
