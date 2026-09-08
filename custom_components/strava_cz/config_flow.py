@@ -81,7 +81,10 @@ class StravaCZConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Let the user choose the login type."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=[ACCOUNT_TYPE_PERSONAL, ACCOUNT_TYPE_CANTEEN],
+            menu_options={
+                ACCOUNT_TYPE_PERSONAL: "Osobní účet (doporučeno)",
+                ACCOUNT_TYPE_CANTEEN: "Účet jídelny",
+            },
         )
 
     async def async_step_personal(
