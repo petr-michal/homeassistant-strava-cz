@@ -6,9 +6,9 @@ používajících Strava.cz.
 Integrace vychází z knihovny:
 https://github.com/jsem-nerad/strava-cz-python
 
-## Verze 0.2.2
+## Verze 0.2.3
 
-Verze 0.2.2 přidává týdenní jídelníček pro celý pracovní týden. Zachovává také opravené popisky výběru přihlášení a číslo jídelny u zařízení.\n\nIntegrace podporuje dva způsoby přihlášení:
+Verze 0.2.3 přidává srozumitelnou výchozí volbu do ovládacích prvků pro objednání a zrušení oběda. Verze 0.2.2 přidala týdenní jídelníček pro celý pracovní týden. Zachovává také opravené popisky výběru přihlášení a číslo jídelny u zařízení.\n\nIntegrace podporuje dva způsoby přihlášení:
 
 ### Osobní účet – doporučeno
 
